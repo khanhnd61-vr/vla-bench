@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VLA Bench: LIBERO, its variants and CALVIN</title>
+  <meta name="description" content="What LIBERO, its zero-shot variants and CALVIN vary between training and test, how each is scored, and which test conditions policies can fit.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234B2E0F'/%3E%3Crect x='7' y='7' width='8' height='8' rx='2' fill='%230e8a6e'/%3E%3Crect x='17' y='7' width='8' height='8' rx='2' fill='%23c4651c'/%3E%3Crect x='7' y='17' width='8' height='8' rx='2' fill='%23F4C15D'/%3E%3Crect x='17.75' y='17.75' width='6.5' height='6.5' rx='1.5' fill='none' stroke='%23FAF7F2' stroke-width='1.5'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip" href="#glance">Skip to the comparison</a>
+
+  <header class="topbar">
+    <div class="wrap topbar__in">
+      <a class="brand" href="#top" aria-label="VLA Bench, back to top">
+        <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" class="brand__bg"/><rect x="7" y="7" width="8" height="8" rx="2" class="brand__a"/><rect x="17" y="7" width="8" height="8" rx="2" class="brand__b"/><rect x="7" y="17" width="8" height="8" rx="2" class="brand__c"/><rect x="17.75" y="17.75" width="6.5" height="6.5" rx="1.5" class="brand__d"/></svg>
+        <span>VLA Bench</span>
+      </a>
+      <nav class="nav" aria-label="Sections">
+        <a href="#glance">Side by side</a>
+        <a href="#libero">LIBERO</a>
+        <a href="#variants">Variants</a>
+        <a href="#calvin">CALVIN</a>
+      </nav>
+      <a class="nav__cta" href="https://khanhnd61-vr.github.io/">Home ↗</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero__in">
+        <p class="eyebrow">Robot manipulation benchmarks</p>
+        <h1>What <span class="accent-warm">LIBERO</span> and <span class="accent">CALVIN</span> vary, and what they hold fixed</h1>
+        <dl class="stats">
+          <div class="stat--main"><dt>LIBERO tasks scored</dt><dd>40</dd></div>
+          <div><dt>LIBERO variants</dt><dd>16</dd></div>
+          <div><dt>CALVIN tasks</dt><dd>34</dd></div>
+          <div><dt>CALVIN table spots</dt><dd>2</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="section" id="glance" aria-labelledby="glance-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// side by side</p>
+          <h2 id="glance-title">The two benchmarks side by side</h2>
+        </header>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">libero vs calvin</span></div>
+          <div class="win__body scroll"><table class="glance"><thead><tr><th></th><th>LIBERO</th><th>CALVIN</th></tr></thead><tbody id="glanceRows"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= LIBERO ================= -->
+    <section class="section section--alt" id="libero" aria-labelledby="suites-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// libero · suites</p>
+          <h2 id="suites-title">The original benchmark: 130 tasks in four suites</h2>
+          <p class="cite">Liu et al., 2023 · <a href="https://arxiv.org/abs/2306.03310">2306.03310</a></p>
+        </header>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">task map</span></div>
+          <div class="win__body">
+            <div class="map" id="map"></div>
+            <dl class="alias">
+              <div><dt>LIBERO-Long = LIBERO-10 = <code>libero_10</code></dt><dd>Three names for the same 10 long tasks.</dd></div>
+              <div><dt>LIBERO-100</dt><dd>LIBERO-90 plus LIBERO-10.</dd></div>
+              <div><dt>"LIBERO: 97.1"</dt><dd>Mean of Spatial, Object, Goal and Long. 50 rollouts per task, 2,000 in total.</dd></div>
+              <div><dt>Each task</dt><dd>50 human demonstrations, one Franka arm, one instruction.</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="diff-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// libero · tasks</p>
+          <h2 id="diff-title">What differs between two tasks of the same suite</h2>
+        </header>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">top-down maps from the task files</span></div>
+          <div class="win__body">
+            <div class="legend">
+              <span><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="var(--orange)" stroke-width="2"/></svg>What the instruction asks the robot to act on</span>
+            </div>
+            <div id="cmp"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt" aria-labelledby="roll-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// libero · rollouts</p>
+          <h2 id="roll-title">What differs between the 50 rollouts of one task</h2>
+        </header>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">start positions, to scale</span></div>
+          <div class="win__body">
+            <div class="scroll">
+              <svg class="roll" id="roll" viewBox="0 0 680 190" role="img" aria-label="The 50 start positions of an object fall inside a 2 centimetre square. LIBERO-PRO position shifts of 0.2 and 0.4 are ten and twenty times larger."></svg>
+            </div>
+            <div class="two">
+              <div><b>Changes from rollout to rollout</b><span>Where each object's centre lands inside its own small square: 2 cm in Spatial and Goal, 5 cm for the groceries in Object.</span></div>
+              <div><b>Never changes</b><span>Which objects are there, the fixtures, the camera, the lighting, the instruction. The robot starts from its default pose.</span></div>
+              <div><b>Training and test</b><span>The 50 demonstrations and the 50 test starts are drawn from the same squares.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VARIANTS ================= -->
+    <section class="section" id="variants" aria-labelledby="flow-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// variants · protocol</p>
+          <h2 id="flow-title">Train once on LIBERO, test on the variants</h2>
+        </header>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">zero-shot protocol</span></div>
+          <div class="win__body scroll">
+            <svg class="flow" viewBox="0 0 900 200" role="img" aria-label="Standard LIBERO demonstrations train one checkpoint, which is then tested without retraining on LIBERO, LIBERO-PRO and LIBERO-Plus.">
+              <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+              <g font-family="Inter, system-ui, sans-serif" fill="currentColor">
+                <rect x="10" y="62" width="210" height="76" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <text x="115" y="92" text-anchor="middle" font-size="14" font-weight="600">Standard LIBERO demos</text>
+                <text x="115" y="112" text-anchor="middle" font-size="12" opacity=".75">40 tasks · 1,693 demos</text>
+                <text x="115" y="127" text-anchor="middle" font-size="12" opacity=".75">after OpenVLA filtering</text>
+                <line x1="220" y1="100" x2="318" y2="100" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah)"/>
+                <text x="269" y="92" text-anchor="middle" font-size="12">train</text>
+                <rect x="320" y="72" width="150" height="56" rx="8" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="1.5"/>
+                <text x="395" y="105" text-anchor="middle" font-size="14" font-weight="600">One checkpoint</text>
+                <path d="M470 100H520V32H598" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah)"/>
+                <line x1="520" y1="100" x2="598" y2="100" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah)"/>
+                <path d="M520 100V168H598" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah)"/>
+                <text x="496" y="92" text-anchor="middle" font-size="12">test</text>
+                <text x="395" y="146" text-anchor="middle" font-size="12" opacity=".75">not retrained for any test</text>
+                <g font-size="12">
+                  <rect x="600" y="6" width="290" height="52" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                  <text x="614" y="28" font-size="14" font-weight="600">LIBERO</text>
+                  <text x="614" y="46" opacity=".75">Same scenes, layouts and instructions</text>
+                  <rect x="600" y="74" width="290" height="52" rx="8" fill="none" stroke="var(--orange)" stroke-width="1.5"/>
+                  <text x="614" y="96" font-size="14" font-weight="600">LIBERO-PRO</text>
+                  <text x="614" y="114" opacity=".75">5 perturbation types · no training data</text>
+                  <rect x="600" y="142" width="290" height="52" rx="8" fill="none" stroke="var(--orange)" stroke-width="1.5"/>
+                  <text x="614" y="164" font-size="14" font-weight="600">LIBERO-Plus</text>
+                  <text x="614" y="182" opacity=".75">10,030 tasks · 7 dimensions</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt" aria-labelledby="ex-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// variants · explorer</p>
+          <h2 id="ex-title">What each test changes, and what happens to the scores</h2>
+        </header>
+        <div class="win">
+          <div class="win__bar">
+            <span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="win__name">perturbation explorer</span>
+            <div class="tabs seg--bar" role="tablist" aria-label="Benchmark">
+              <button class="tab" role="tab" id="tabPro" data-b="pro" aria-selected="true">LIBERO-PRO</button>
+              <button class="tab" role="tab" id="tabPlus" data-b="plus" aria-selected="false">LIBERO-Plus</button>
+            </div>
+          </div>
+          <div class="win__body">
+            <div class="opts" id="opts"></div>
+            <div class="ex">
+              <div>
+                <svg class="scene" id="scene" viewBox="0 0 360 220" role="img" aria-label="Tabletop scene showing the selected perturbation"></svg>
+                <code class="inst" id="inst"></code>
+                <p class="what" id="what"></p>
+                <ul class="facts" id="facts"></ul>
+              </div>
+              <div class="res">
+                <h3 id="resT"></h3>
+                <div id="res"></div>
+                <p class="src" id="src"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="idx-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// variants · index</p>
+          <h2 id="idx-title">Every other variant</h2>
+        </header>
+        <div class="win">
+          <div class="win__bar">
+            <span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="win__name">variant index</span>
+            <div class="chips seg--bar" id="chips">
+              <button class="chip" data-f="all" aria-pressed="true">All</button>
+              <button class="chip" data-f="none" aria-pressed="false">Test only</button>
+              <button class="chip" data-f="own" aria-pressed="false">Ships training data</button>
+            </div>
+          </div>
+          <div class="win__body scroll"><table id="idx"><thead><tr><th>Variant</th><th>Date</th><th>Tests</th><th>Size</th><th>Training data</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CALVIN ================= -->
+    <section class="section section--alt" id="calvin" aria-labelledby="tables-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// calvin · tables</p>
+          <h2 id="tables-title">Four tables with the same parts in different places</h2>
+          <p class="cite">Mees et al., 2022 · <a href="https://arxiv.org/abs/2112.03227">2112.03227</a> · maps and rules read from <code>calvin</code> fa03f01 and <code>calvin_env</code> 797142c</p>
+        </header>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">top view, robot side at the bottom, to scale</span></div>
+          <div class="win__body">
+            <div class="legend" id="cvKey"></div>
+            <div class="envs" id="envs"></div>
+            <div class="two">
+              <div><b>Same on all four</b><span>Robot, static camera and desk position. The parts: a sliding door over two compartments, a drawer, a button that toggles a green LED, a switch that turns on a light bulb, three blocks.</span></div>
+              <div><b>Differs</b><span>Table texture; where the door, drawer, button and switch sit; which block is 5, 7 or 10 cm long; the region where a block may start.</span></div>
+              <div><b>How the data was made</b><span>People teleoperated the arm in VR and explored freely, about 6 h per table. About 1% of the recording was later cut into 64-frame windows and labelled with an instruction.</span></div>
+            </div>
+            <p class="src">Positions from the four scene files and table URDFs, scaled by 0.8 as the scene files set.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="tasks-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// calvin · tasks</p>
+          <h2 id="tasks-title">34 tasks</h2>
+        </header>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">task map</span></div>
+          <div class="win__body">
+            <div class="map" id="cvTasks"></div>
+            <dl class="alias">
+              <div><dt>Training labels</dt><dd>389 phrasings, about 11 per task: “open the drawer”, “pull the handle of the drawer”, “grasp the drawer handle and open it”.</dd></div>
+              <div><dt>Test phrasing</dt><dd>One fixed phrasing per task, not among the training labels: “pull the handle to open the drawer”.</dd></div>
+              <div><dt>Instructions that name no block</dt><dd>“store the grasped block in the drawer”, “stack the grasped block”. The block is whichever one the previous instruction left in the gripper.</dd></div>
+              <div><dt>11 families</dt><dd>The evaluator groups the tasks into 11 families, such as all lifts from the table. A test chain never uses two tasks from one family.</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt" aria-labelledby="chain-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// calvin · scoring</p>
+          <h2 id="chain-title">How a CALVIN score is made: chains of five instructions</h2>
+        </header>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">one test chain</span></div>
+          <div class="win__body">
+            <p class="start"><span class="lbl">Start state</span><span>door right · drawer closed · LED off · bulb off · red and blue blocks on the table · pink block in the left compartment</span></p>
+            <ol class="chain" id="chain"></ol>
+            <p class="tally">This chain scores <b>3</b> of 5.</p>
+            <div class="two">
+              <div><b>Time limit</b><span>360 steps per instruction, 12 s at 30 Hz. The next instruction is given only after the previous one succeeds.</span></div>
+              <div><b>Test set</b><span>1,000 chains from 192 start states: LED, bulb, door and drawer each in one of two states, one or two blocks on the table and the rest in the compartments. The robot starts every chain from the same pose.</span></div>
+              <div><b>Score</b><span>Tasks completed, averaged over the 1,000 chains (0 to 5). Papers also give the share of chains that get through 1, 2, 3, 4 and 5 instructions.</span></div>
+            </div>
+            <p class="src">Example chain built from the evaluator's rules and test phrasings, not copied from the official list. The 192 start states are counted from the rules in <code>multistep_sequences.py</code>.</p>
+            <h3 class="subhead">Splits</h3>
+            <div class="scroll"><table>
+              <thead><tr><th>Split</th><th>Train on</th><th>Test on</th><th>Download</th><th>Note</th></tr></thead>
+              <tbody>
+                <tr><td>D→D</td><td>Table D</td><td>Table D</td><td class="num">166 GB</td><td>Same table for training and test</td></tr>
+                <tr><td><b>ABC→D</b></td><td>Tables A, B, C</td><td>Table D</td><td class="num">517 GB</td><td>The most reported split; the audit below uses it</td></tr>
+                <tr><td>ABCD→D</td><td>All four</td><td>Table D</td><td class="num">656 GB</td><td>Test table also in training</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="poses-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// calvin · block poses</p>
+          <h2 id="poses-title">What happens when the block poses on table D are redrawn</h2>
+        </header>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">official vs redrawn, ABC→D</span></div>
+          <div class="win__body">
+            <div class="poses">
+              <figure>
+                <svg class="zmap" id="zOff" viewBox="0 0 292 144" role="img" aria-label="Table D with the red and blue blocks on the two official spots, 18 cm apart"></svg>
+                <figcaption><b>Official</b>A block on the table sits on one of two spots 18 cm apart, turned 90° ± 22.5°. A seed taken from the start state picks which block goes where and the angle, so a given chain starts the same way on every run. Blocks in the compartments also sit on fixed spots.</figcaption>
+              </figure>
+              <figure>
+                <svg class="zmap" id="zRed" viewBox="0 0 292 144" role="img" aria-label="Table D with block poses drawn anywhere inside the start region"></svg>
+                <figcaption><b>Redrawn (audit)</b>Each table block's pose is drawn from the range seen in training. Chains, start states and instructions stay the same. Dots: an illustrative draw inside D's start region.</figcaption>
+              </figure>
+            </div>
+            <h3 class="chart-title">Average tasks completed, ABC→D, same 1,000 chains</h3>
+            <div class="legend">
+              <span><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--blue)"/></svg>Official spots</span>
+              <span><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--orange)"/></svg>Redrawn poses</span>
+              <span><svg width="18" height="14" aria-hidden="true"><line x1="9" y1="0" x2="9" y2="14" stroke="var(--ink2)" stroke-width="1.5" stroke-dasharray="3 2"/></svg>Task-ID probe with no language, official spots</span>
+            </div>
+            <div class="scroll"><svg class="db" id="db" viewBox="0 0 540 172" role="img" aria-label="Average tasks completed falls from 4.17 to 3.14 for X-VLA, 3.24 to 2.50 for GR-1 and 2.37 to 1.87 for RoboFlamingo when block poses are redrawn"></svg></div>
+            <div class="scroll" style="margin-top:12px"><table>
+              <thead><tr><th>Policy</th><th>Official</th><th>Redrawn</th><th>Drop (95% CI)</th><th>All 5 done, of 1,000</th></tr></thead>
+              <tbody id="dbRows"></tbody>
+            </table></div>
+            <p class="src">“What Are We Actually Benchmarking in Robot Manipulation?” (<a href="https://arxiv.org/abs/2606.04233">2606.04233</a>), Tables 1 and 6. Drop interval: paired over the 1,000 chains. Drawing two fresh chain lists instead moved the score by at most 0.11 (Table 8), an order of magnitude less. The probe is the audit's DINOv2 ViT-B with an MLP head and a learned 34-way task embedding, best checkpoint (3.15 at the final one). The audit's pose range is not reproduced here; the map's dots are not its samples.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer__in">
+      <div>
+        <a class="brand brand--foot" href="#top"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" class="brand__bg"/><rect x="7" y="7" width="8" height="8" rx="2" class="brand__a"/><rect x="17" y="7" width="8" height="8" rx="2" class="brand__b"/><rect x="7" y="17" width="8" height="8" rx="2" class="brand__c"/><rect x="17.75" y="17.75" width="6.5" height="6.5" rx="1.5" class="brand__d"/></svg><span>VLA Bench</span></a>
+      </div>
+      <div class="footer__links">
+        <div><a href="https://khanhnd61-vr.github.io/">Home</a><a href="https://khanhnd61-vr.github.io/vla-hub/">VLA Hub</a><a href="https://khanhnd61-vr.github.io/small-vla-survey/">Small VLA Survey</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
