@@ -131,22 +131,23 @@
         <div class="win">
           <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">zero-shot protocol</span></div>
           <div class="win__body scroll">
-            <svg class="flow" viewBox="0 0 900 200" role="img" aria-label="Standard LIBERO demonstrations train one checkpoint, which is then tested without retraining on LIBERO, LIBERO-PRO and LIBERO-Plus.">
+            <svg class="flow" viewBox="0 0 900 268" role="img" aria-label="Standard LIBERO demonstrations train one checkpoint, which is then tested without retraining on LIBERO, LIBERO-PRO, LIBERO-Plus and LIBERO-OOD.">
               <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
               <g font-family="Inter, system-ui, sans-serif" fill="currentColor">
-                <rect x="10" y="62" width="210" height="76" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
-                <text x="115" y="92" text-anchor="middle" font-size="14" font-weight="600">Standard LIBERO demos</text>
-                <text x="115" y="112" text-anchor="middle" font-size="12" opacity=".75">40 tasks · 1,693 demos</text>
-                <text x="115" y="127" text-anchor="middle" font-size="12" opacity=".75">after OpenVLA filtering</text>
-                <line x1="220" y1="100" x2="318" y2="100" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah)"/>
-                <text x="269" y="92" text-anchor="middle" font-size="12">train</text>
-                <rect x="320" y="72" width="150" height="56" rx="8" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="1.5"/>
-                <text x="395" y="105" text-anchor="middle" font-size="14" font-weight="600">One checkpoint</text>
-                <path d="M470 100H520V32H598" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah)"/>
-                <line x1="520" y1="100" x2="598" y2="100" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah)"/>
-                <path d="M520 100V168H598" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah)"/>
-                <text x="496" y="92" text-anchor="middle" font-size="12">test</text>
-                <text x="395" y="146" text-anchor="middle" font-size="12" opacity=".75">not retrained for any test</text>
+                <rect x="10" y="96" width="210" height="76" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <text x="115" y="126" text-anchor="middle" font-size="14" font-weight="600">Standard LIBERO demos</text>
+                <text x="115" y="146" text-anchor="middle" font-size="12" opacity=".75">40 tasks · 1,693 demos</text>
+                <text x="115" y="161" text-anchor="middle" font-size="12" opacity=".75">after OpenVLA filtering</text>
+                <line x1="220" y1="134" x2="318" y2="134" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah)"/>
+                <text x="269" y="126" text-anchor="middle" font-size="12">train</text>
+                <rect x="320" y="106" width="150" height="56" rx="8" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="1.5"/>
+                <text x="395" y="139" text-anchor="middle" font-size="14" font-weight="600">One checkpoint</text>
+                <path d="M470 134H520V32H598" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah)"/>
+                <path d="M520 134V100H598" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah)"/>
+                <path d="M520 134V168H598" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah)"/>
+                <path d="M520 134V236H598" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah)"/>
+                <text x="496" y="126" text-anchor="middle" font-size="12">test</text>
+                <text x="395" y="180" text-anchor="middle" font-size="12" opacity=".75">not retrained for any test</text>
                 <g font-size="12">
                   <rect x="600" y="6" width="290" height="52" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
                   <text x="614" y="28" font-size="14" font-weight="600">LIBERO</text>
@@ -157,6 +158,9 @@
                   <rect x="600" y="142" width="290" height="52" rx="8" fill="none" stroke="var(--orange)" stroke-width="1.5"/>
                   <text x="614" y="164" font-size="14" font-weight="600">LIBERO-Plus</text>
                   <text x="614" y="182" opacity=".75">10,030 tasks · 7 dimensions</text>
+                  <rect x="600" y="210" width="290" height="52" rx="8" fill="none" stroke="var(--orange)" stroke-width="1.5"/>
+                  <text x="614" y="232" font-size="14" font-weight="600">LIBERO-OOD</text>
+                  <text x="614" y="250" opacity=".75">New pick–place pairings · 20 tasks</text>
                 </g>
               </g>
             </svg>
@@ -178,22 +182,25 @@
             <div class="tabs seg--bar" role="tablist" aria-label="Benchmark">
               <button class="tab" role="tab" id="tabPro" data-b="pro" aria-selected="true">LIBERO-PRO</button>
               <button class="tab" role="tab" id="tabPlus" data-b="plus" aria-selected="false">LIBERO-Plus</button>
+              <button class="tab" role="tab" id="tabOod" data-b="ood" aria-selected="false">LIBERO-OOD</button>
             </div>
           </div>
           <div class="win__body">
             <div class="opts" id="opts"></div>
-            <div class="ex">
-              <div>
-                <svg class="scene" id="scene" viewBox="0 0 360 220" role="img" aria-label="Tabletop scene showing the selected perturbation"></svg>
-                <code class="inst" id="inst"></code>
-                <p class="what" id="what"></p>
-                <ul class="facts" id="facts"></ul>
-              </div>
-              <div class="res">
-                <h3 id="resT"></h3>
-                <div id="res"></div>
-                <p class="src" id="src"></p>
-              </div>
+            <div class="vs">
+              <figure class="side"><figcaption class="lbl">Original LIBERO</figcaption><div id="sideA"></div></figure>
+              <figure class="side"><figcaption class="lbl" id="lblB"></figcaption><div id="sideB"></div></figure>
+              <div class="vtext"><p class="what" id="what"></p><ul class="facts" id="facts"></ul></div>
+            </div>
+            <div class="legend" id="oodKey" hidden style="margin:12px 0 0">
+              <span><svg width="22" height="10" aria-hidden="true"><line x1="1" y1="5" x2="15" y2="5" stroke="var(--ink2)" stroke-width="1.5" stroke-dasharray="4 3"/><path d="M21 5L14.5 1.5V8.5Z" fill="var(--ink2)"/></svg>A training task with the same pick or place</span>
+              <span><svg width="22" height="10" aria-hidden="true"><line x1="1" y1="5" x2="14" y2="5" stroke="var(--orange)" stroke-width="2.5"/><path d="M21 5L13 1V9Z" fill="var(--orange)"/></svg>The test task</span>
+              <span>Top view, to scale, from the task files</span>
+            </div>
+            <div class="res">
+              <h3 id="resT"></h3>
+              <div id="res"></div>
+              <p class="src" id="src"></p>
             </div>
           </div>
         </div>

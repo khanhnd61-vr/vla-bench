@@ -3,7 +3,7 @@ const $=s=>document.querySelector(s);
 /* ---------- task map ---------- */
 const SUITES=[
   ["LIBERO-Spatial",10,5,"Same objects; the target bowl starts somewhere different","rep"],
-  ["LIBERO-Object",10,5,"Different object to pick, always at the same spot","rep"],
+  ["LIBERO-Object",10,5,"Different object to pick, always at one of two spots","rep"],
   ["LIBERO-Goal",10,5,"Identical scene; only the instruction differs","rep"],
   ["LIBERO-10 (Long)",10,5,"Long tasks, two sub-goals each","rep"],
   ["LIBERO-90",90,18,"Short tasks, many scenes. For pretraining.","pre"]];
@@ -13,21 +13,32 @@ $("#map").innerHTML=SUITES.map(([n,c,cols,d,k])=>
 
 /* ---------- suite comparison maps (coordinates from the BDDL files) ---------- */
 const P=(x,y)=>[(x+.5)*300+5,(y+.37)*300+5];
-function tmap(objs,floor,arrow){
+/* arrow between two map points, trimmed t1 from the start and t2 from the end; k "new" = test task, else a training task */
+function arw(a,b,k,t1,t2){
+  const r1=v=>Math.round(v*10)/10, dx=b[0]-a[0], dy=b[1]-a[1], L=Math.hypot(dx,dy), ux=dx/L, uy=dy/L;
+  const nw=k==="new", c=nw?"var(--orange)":"var(--ink2)", h=nw?8:6.5;
+  const s=[a[0]+ux*t1,a[1]+uy*t1], e=[b[0]-ux*t2,b[1]-uy*t2], q=[e[0]-ux*h,e[1]-uy*h], px=-uy*h*.5, py=ux*h*.5;
+  return `<line x1="${r1(s[0])}" y1="${r1(s[1])}" x2="${r1(q[0])}" y2="${r1(q[1])}" stroke="${c}" stroke-width="${nw?2.5:1.5}" ${nw?'':'stroke-dasharray="4 3"'}/>`+
+    `<path d="M${r1(e[0])} ${r1(e[1])}L${r1(q[0]+px)} ${r1(q[1]+py)}L${r1(q[0]-px)} ${r1(q[1]-py)}Z" fill="${c}"/>`;
+}
+function tmap(objs,floor,arrow,arrows,bare){
   let o=`<rect width="250" height="240" rx="8" fill="${floor?'var(--table2)':'var(--table)'}"/>`, lab="";
   if(arrow){const a=P(...arrow[0]),b=P(...arrow[1]);o+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="var(--orange)" stroke-width="2" stroke-dasharray="5 4"/>`}
   for(const [name,x,y,kind,lp,ring] of objs){
     const [px,py]=P(x,y); let r=9;
     if(kind==="fix"){r=17;o+=`<rect x="${px-19}" y="${py-15}" width="38" height="30" rx="4" fill="var(--stove)"/>`}
+    else if(kind==="ghost"){r=17;o+=`<rect x="${px-19}" y="${py-15}" width="38" height="30" rx="4" fill="none" stroke="var(--ink2)" stroke-width="1.5" stroke-dasharray="4 3"/>`}
     else if(kind==="basket"){r=17;o+=`<rect x="${px-19}" y="${py-14}" width="38" height="28" rx="4" fill="none" stroke="var(--ink)" stroke-width="2"/>`}
     else if(kind==="plate"){r=12;o+=`<circle cx="${px}" cy="${py}" r="12" fill="var(--plate)" stroke="var(--muted)" stroke-width="1.5"/>`}
     else if(kind==="bowl"){r=8;o+=`<circle cx="${px}" cy="${py}" r="8" fill="var(--obj)" stroke="var(--bg)" stroke-width="1.5"/>`}
     else {r=7;o+=`<rect x="${px-6}" y="${py-6}" width="12" height="12" rx="3" fill="${ring?'var(--blue)':'var(--muted)'}" stroke="var(--bg)" stroke-width="1"/>`}
-    if(ring) o+=`<circle cx="${px}" cy="${py}" r="${r+6}" fill="none" stroke="var(--orange)" stroke-width="2"/>`;
-    const d=r+(ring?8:3), q={b:[px,py+d+10,"middle"],t:[px,py-d-3,"middle"],l:[px-d-2,py+4,"end"],r:[px+d+2,py+4,"start"]}[lp];
-    lab+=`<text x="${q[0]}" y="${q[1]}" text-anchor="${q[2]}" font-size="10.5" font-family="Inter,system-ui,sans-serif" font-weight="${ring?600:400}" fill="var(--ink)">${name}</text>`;
+    /* ring 1: orange circle, blue fill, bold label; ring 2: blue fill and bold label only */
+    if(ring===1) o+=`<circle cx="${px}" cy="${py}" r="${r+6}" fill="none" stroke="var(--orange)" stroke-width="2"/>`;
+    const d=r+(ring===1?8:3), q={b:[px,py+d+10,"middle"],t:[px,py-d-3,"middle"],l:[px-d-2,py+4,"end"],r:[px+d+2,py+4,"start"]}[lp];
+    lab+=`<text x="${q[0]}" y="${q[1]}" text-anchor="${q[2]}" font-size="10.5" font-family="Inter,system-ui,sans-serif" font-weight="${ring?600:400}" fill="var(${kind==="ghost"?"--ink2":"--ink"})">${name}</text>`;
   }
-  return `<svg class="tmap" viewBox="0 0 250 240" role="img">${o}${lab}</svg>`;
+  if(arrows) o+=arrows.map(([a,b,k,t1,t2])=>arw(P(...a),P(...b),k,t1,t2)).join("");
+  return bare?o+lab:`<svg class="tmap" viewBox="0 0 250 240" role="img">${o}${lab}</svg>`;
 }
 const SPF=[["stove",-.41,-.14,"fix","b"],["cabinet",.03,-.27,"fix","b"],["plate",.06,.20,"plate","r"],["cookie box",.07,.03,"item","r"],["ramekin",-.20,.20,"item","l"]];
 const GO=(a,b)=>[["stove",-.41,.21,"fix","t",b],["cabinet",.03,-.24,"fix","b"],["wine rack",-.26,-.26,"fix","b"],["plate",.05,-.02,"plate","r"],["bowl",-.09,0,"bowl","b",a],["wine bottle",-.20,-.05,"item","l"],["cream cheese",-.05,.13,"item","b"]];
@@ -39,7 +50,7 @@ const CMP=[
  {n:"LIBERO-Object",
   a:[tmap([["basket",0,.26,"basket","b"],["alphabet soup",-.12,-.24,"item","t",1],["salad dressing",.05,-.10,"item","b"],["cream cheese",-.15,.06,"item","b"],["milk",.10,-.20,"item","r"],["tomato sauce",.15,.03,"item","b"],["butter",-.20,-.08,"item","l"]],1),"pick up the alphabet soup and place it in the basket"],
   b:[tmap([["basket",0,.26,"basket","b"],["milk",-.12,-.24,"item","t",1],["cream cheese",.05,-.10,"item","b"],["tomato sauce",-.15,.06,"item","b"],["butter",.10,-.20,"item","r"],["orange juice",.15,.03,"item","b"],["pudding",-.20,-.08,"item","l"]],1),"pick up the milk and place it in the basket"],
-  v:[["Objects","diff","A basket plus six groceries, drawn from a pool of ten. The set changes per task."],["Positions","same","The same seven spots. The object to pick always sits in the same spot."],["Goal","same","Always the target into the basket. The instruction names a different grocery."]]},
+  v:[["Objects","diff","A basket plus six groceries, drawn from a pool of ten. The set changes per task."],["Positions","same","The same seven spots in all ten tasks. The object to pick sits on one of two of them, five tasks each."],["Goal","same","Always the target into the basket. The instruction names a different grocery."]]},
  {n:"LIBERO-Goal",
   a:[tmap(GO(1,0),0,[[-.09,0],[-.41,.21]]),"put the bowl on the stove"],
   b:[tmap(GO(0,1)),"turn on the stove"],
@@ -105,22 +116,72 @@ const PLUS={
     d:[15.2,75.8,49.9,78.6,12.8,10.9,21.2,79.0,74.4,73.5,89.3]},
    {k:"Layout",n:1525,what:"Distractor objects are added, or the target object's pose changes.",facts:["416 distractor assets"],s:{extra:true,bowl:[95,150],mark:"bowl"},
     d:[28.5,74.2,69.9,68.7,62.1,38.0,31.9,68.9,68.8,74.2,77.6]},
-   {k:"Total",n:10030,what:"All 10,030 perturbed tasks, each changed along one dimension.",facts:["Five difficulty levels","Generated from the 40 standard tasks"],s:{},
+   {k:"Total",n:10030,grid:1,what:"All 10,030 perturbed tasks, each changed along one dimension.",facts:["Five difficulty levels","Generated from the 40 standard tasks"],s:{},
     d:[15.6,69.6,55.8,67.9,39.0,25.0,42.9,53.6,61.6,68.4,79.5]}]};
-const B={pro:PRO,plus:PLUS};
-let bench="pro", sel={pro:2,plus:0};
+/* LIBERO-OOD: task files from github.com/QuanyiLi/pi0-text-latent 587a6cb; scores from 2505.03500 Table 3 */
+const GOS=[["stove",-.41,.21,"fix","t"],["cabinet",.03,-.24,"fix","b"],["wine rack",-.26,-.26,"fix","b"],["plate",.05,-.02,"plate","r"],["wine bottle",-.20,-.05,"item","l"]];
+/* Training side for the Goal-scene tests: the two training tasks that share the test's pick spot or its place */
+const GOA=()=>tmap([...GOS,["bowl",-.09,0,"bowl","t",2],["cream cheese",-.05,.13,"item","b",2]],0,null,
+  [[[-.05,.13],[-.09,0],"seen",8,9],[[-.09,0],[.05,-.02],"seen",9,13]],1);
+const GOT=["put the cream cheese in the bowl","put the bowl on the plate"];
+const GOALT="Top view of the LIBERO-Goal training scene. Training tasks move the cream cheese into the bowl and the bowl onto the plate.";
+const SPA=[["cabinet",.03,-.27,"fix","b"],["plate",.06,.20,"plate","r"],["cookie box",.07,.03,"item","r"],["bowl",.01,.31,"bowl","b"],["bowl",-.075,0,"bowl","t",2]];
+const OBJ=(a,b)=>tmap([["basket",0,.26,"basket","b"],[a,-.12,-.24,"item","t",a==="alphabet soup"?2:0],["salad dressing",.05,-.10,"item","t"],["cream cheese",-.15,.06,"item","l"],["milk",.10,-.20,"item","r"],["butter",-.20,-.08,"item","l"],[b,.15,.03,"item","t",b==="alphabet soup"?2:0]],1,null,
+  [a==="alphabet soup"?[[-.12,-.24],[0,.26],"seen",9,18]:[[.15,.03],[0,.26],"new",8,18]],1);
+const OOD={
+  src:'LIBERO-OOD paper (2505.03500), Table 3. Models fine-tuned on LIBERO demonstrations. 10 runs per task with different random seeds, 100 per sub-suite; each sub-suite mixes the groups above (Goal-OOD: 6 new pairings + 4 new objects; Spatial-OOD: the same split). * The paper\'s own methods: for each test task a person names the two training tasks to combine. Scale 0–1.',
+  models:["UniVLA","OpenVLA-OFT","π0-FAST","π0","π0, prompt switched halfway *","π0, text-latent interpolation *"],
+  cols:["Goal-OOD","Spatial-OOD","All"],
+  d:[[.32,.11,.21],[.01,0,.01],[.13,.17,.15],[.02,.16,.09],[.72,.66,.69],[.85,.81,.83]],
+  opts:[
+   {k:"Goal: new pairing",inst:"put the cream cheese on the plate",
+    what:"The LIBERO-Goal scene, unchanged. The cream cheese is picked up in training and the plate is a place in training, but never in the same task.",
+    facts:["6 tasks: the cream cheese onto the plate, the stove or the cabinet top; the wine bottle into the bowl, onto the plate or onto the stove","In training the cream cheese only goes into the bowl, and the wine bottle only to the cabinet top or the rack","Objects, positions and camera are those of the training scene"],
+    ta:GOT,ma:GOA,altA:GOALT,
+    alt:"The same scene. The test task moves the cream cheese onto the plate.",
+    m:()=>tmap([...GOS,["bowl",-.09,0,"bowl","t"],["cream cheese",-.05,.13,"item","b",2]],0,null,
+      [[[-.05,.13],[.05,-.02],"new",8,13]],1)},
+   {k:"Spatial: new pairing",inst:"put the bowl at table center on the stove",
+    what:"The LIBERO-Spatial scene with the stove moved. In LIBERO-Spatial every bowl goes onto the plate; the stove and the cabinet top are places only in LIBERO-Goal, a different scene.",
+    facts:["6 tasks: the bowl from the table centre, next to the plate or on the cookie box, onto the cabinet top or the stove","The stove is moved 42 cm, to within 7 cm of where it stands in the Goal scene. The ramekin is left out","LIBERO-Goal's “put the bowl on the stove” starts its bowl 1.5 cm from this one and ends 7 cm from this stove"],
+    ta:["pick up the black bowl from table center and place it on the plate"],
+    altA:"Top view of the LIBERO-Spatial training scene. The training task moves the bowl at the table centre onto the plate.",
+    ma:()=>tmap([["stove",-.41,-.14,"fix","b"],...SPA,["ramekin",-.20,.20,"item","l"]],0,null,
+      [[[-.075,0],[.06,.20],"seen",9,13]],1),
+    alt:"The same scene with the stove moved 42 centimetres and the ramekin left out. The test task moves the bowl at the table centre onto the stove.",
+    m:()=>tmap([["stove",-.39,.28,"fix","r"],...SPA],0,null,
+      [[[-.075,0],[-.39,.28],"new",9,19]],1)},
+   {k:"Object brought in",inst:"put the bbq source on the plate",
+    what:"A grocery from the LIBERO-Object scenes is put into the Goal or Spatial scene, where it never appears in training. Other objects may be swapped too.",
+    facts:["8 tasks. Goal: the bbq sauce onto the plate, the orange juice onto the stove, the tomato sauce onto the cabinet top, the cream cheese into a basket that replaces the stove. Spatial: the butter, the milk, the chocolate pudding or the orange juice onto the plate","Here the bbq sauce stands where the cream cheese stood, and a cream cheese stands where the bowl stood","The file name, which is the instruction, spells it “bbq source”"],
+    ta:GOT,ma:GOA,altA:GOALT,
+    alt:"The same scene with a bbq sauce where the cream cheese stood and a cream cheese where the bowl stood. The test task moves the bbq sauce onto the plate.",
+    m:()=>tmap([...GOS,["cream cheese",-.09,0,"item","l"],["bbq sauce",-.05,.13,"item","b",2]],0,null,
+      [[[-.05,.13],[.05,-.02],"new",8,13]],1)},
+   {k:"Object swap",inst:"pick up the alphabet soup and place it in the basket",same:1,
+    what:"A LIBERO-Object task with two objects trading places. The named object starts where another one stood, and a different object stands where the named one stood in training.",
+    facts:["10 tasks, one per LIBERO-Object task. In the code release, not in the paper's table","The object to pick starts on one of the five spots that no LIBERO-Object task picks from","The instruction is the training instruction"],
+    ta:["pick up the alphabet soup and place it in the basket"],
+    altA:"Top view of the LIBERO-Object training scene. The training task moves the alphabet soup into the basket.",
+    ma:()=>OBJ("alphabet soup","tomato sauce"),
+    alt:"The same scene with the alphabet soup and the tomato sauce swapped. The test task moves the alphabet soup into the basket from the tomato sauce's training spot.",
+    na:"Not evaluated in the paper: these 10 files are only in its code release.",
+    m:()=>OBJ("tomato sauce","alphabet soup")}]};
+const B={pro:PRO,plus:PLUS,ood:OOD};
+let bench="pro", sel={pro:2,plus:0,ood:0};
 
 /* ---------- scene ---------- */
-function scene(s){
+/* id: suffix that keeps filter and pattern ids unique when several scenes share the page; nolab: no object names */
+function scene(s,id,nolab){
   let bowl=s.bowl||[120,120], mug=[250,150];
   if(s.swap){ bowl=[250,150]; mug=[120,120]; }
   const plate=[185,75], grip=s.grip||[185,28];
   const tf=s.cam?'transform="translate(50 34) scale(.72) rotate(-9 180 110)"':'';
   const mk={bowl:bowl,mug:mug,grip:grip}[s.mark];
-  let o=`<defs><filter id="bl"><feGaussianBlur stdDeviation="2.6"/></filter>
-    <pattern id="tx" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="14" height="14" fill="var(--table2)"/><rect width="7" height="14" fill="var(--table)"/></pattern></defs>`;
-  o+=`<g ${tf} ${s.blur?'filter="url(#bl)"':''}>`;
-  o+=`<rect x="18" y="14" width="324" height="192" rx="10" fill="${s.tex?'url(#tx)':(s.table||'var(--table)')}"/>`;
+  let o=`<defs><filter id="bl${id}"><feGaussianBlur stdDeviation="2.6"/></filter>
+    <pattern id="tx${id}" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="14" height="14" fill="var(--table2)"/><rect width="7" height="14" fill="var(--table)"/></pattern></defs>`;
+  o+=`<g ${tf} ${s.blur?`filter="url(#bl${id})"`:''}>`;
+  o+=`<rect x="18" y="14" width="324" height="192" rx="10" fill="${s.tex?`url(#tx${id})`:(s.table||'var(--table)')}"/>`;
   o+=`<rect x="276" y="34" width="52" height="52" rx="6" fill="var(--stove)"/><circle cx="302" cy="60" r="15" fill="none" stroke="var(--muted)" stroke-width="2"/>`;
   o+=`<circle cx="${plate[0]}" cy="${plate[1]}" r="27" fill="var(--plate)" stroke="var(--muted)" stroke-width="1.5"/><circle cx="${plate[0]}" cy="${plate[1]}" r="17" fill="none" stroke="var(--muted)" stroke-width="1"/>`;
   if(s.extra) o+=`<rect x="52" y="52" width="26" height="34" rx="4" fill="var(--aqua)"/><circle cx="215" cy="172" r="12" fill="var(--blue)"/><rect x="292" y="120" width="22" height="22" rx="11" fill="var(--muted)"/>`;
@@ -130,8 +191,8 @@ function scene(s){
   if(mk) o+=`<circle cx="${mk[0]}" cy="${mk[1]+(s.mark==='grip'?4:0)}" r="27" fill="none" stroke="var(--orange)" stroke-width="2" stroke-dasharray="5 4"/>`;
   o+=`</g>`;
   if(s.dark) o+=`<rect x="18" y="14" width="324" height="192" rx="10" fill="#000" opacity=".5"/><path d="M18 14h150l-150 160z" fill="#fff" opacity=".12"/>`;
-  const t=(x,y,w,l)=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="10.5" font-family="Inter,system-ui,sans-serif" fill="var(--ink2)">${l}</text>`;
-  if(!s.cam&&!s.blur&&!s.dark) o+=t(bowl[0],bowl[1]+(s.mark==="bowl"?40:(s.bowlR||15)+13),0,"bowl")+t(mug[0],mug[1]+25,0,"mug")+t(plate[0],plate[1]+41,0,"plate");
+  const t=(x,y,w,l)=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="12.5" font-family="Inter,system-ui,sans-serif" fill="var(--ink2)">${l}</text>`;
+  if(!nolab&&!s.cam&&!s.blur&&!s.dark) o+=t(bowl[0],bowl[1]+(s.mark==="bowl"?40:(s.bowlR||15)+13),0,"bowl")+t(mug[0],mug[1]+25,0,"mug")+t(plate[0],plate[1]+41,0,"plate");
   return o;
 }
 
@@ -143,18 +204,32 @@ function results(){
     $("#resT").textContent=`Success rate · ${o.k}`;
     $("#res").innerHTML=`<div class="scroll"><table class="grid"><thead><tr><th>Model</th>${b.suites.map(s=>`<th>${s}</th>`).join("")}</tr></thead><tbody>`+
       b.models.map((m,i)=>`<tr><td>${m}</td>${o.d[i].map(v=>`<td class="c"><div class="cellbar">${bar(v,1)}<span class="num">${v.toFixed(2)}</span></div></td>`).join("")}</tr>`).join("")+`</tbody></table></div>`;
+  }else if(bench==="ood"){
+    $("#resT").textContent=o.na?`Success rate · ${o.k}`:"Success rate · whole sub-suites";
+    $("#res").innerHTML=o.na?`<p class="what" style="margin:0">${o.na}</p>`:`<div class="scroll"><table class="grid"><thead><tr><th>Model</th>${b.cols.map(s=>`<th>${s}</th>`).join("")}</tr></thead><tbody>`+
+      b.models.map((m,i)=>`<tr><td>${m}</td>${b.d[i].map(v=>`<td class="c"><div class="cellbar">${bar(v,1)}<span class="num">${v.toFixed(2)}</span></div></td>`).join("")}</tr>`).join("")+`</tbody></table></div>`;
   }else{
     $("#resT").textContent=`Success rate · ${o.k} · ${o.n.toLocaleString("en-US")} tasks`;
     $("#res").innerHTML=PM.map((m,i)=>`<div class="row"><span>${m}</span>${bar(o.d[i],100)}<span class="v num">${o.d[i].toFixed(1)}</span></div>`).join("");
   }
-  $("#src").textContent=b.src;
+  $("#src").textContent=(bench==="ood"&&o.na)?"":b.src;
 }
+const BN={pro:"LIBERO-PRO",plus:"LIBERO-Plus",ood:"LIBERO-OOD"};
+const esc=t=>t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+const cap=(t,chg)=>`<code class="inst${chg?" chg":""}">“${esc(t)}”</code>`;
 function sync(){
   const b=B[bench], o=b.opts[sel[bench]];
   document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.b===bench));
   $("#opts").innerHTML=b.opts.map((x,i)=>`<button class="opt" id="opt-${bench}-${i}" data-i="${i}" aria-pressed="${i===sel[bench]}">${x.k}</button>`).join("");
-  $("#scene").innerHTML=scene(o.s);
-  const ins=$("#inst"); ins.textContent="“"+(o.inst||BASE)+"”"; ins.classList.toggle("chg",!!o.inst);
+  const ood=bench==="ood", vb=ood?"0 0 250 240":"0 0 360 220";
+  const svg=(alt,inner)=>`<svg class="scene" viewBox="${vb}" role="img" aria-label="${esc(alt)}">${inner}</svg>`;
+  $("#sideA").innerHTML=svg(ood?o.altA:"Standard LIBERO scene: bowl, mug and plate on the table, gripper above",ood?o.ma():scene({},"A"))+
+    (ood?o.ta:[BASE]).map(t=>cap(t)).join("");
+  $("#lblB").textContent=`${BN[bench]} · ${o.k}`;
+  $("#sideB").innerHTML=o.grid
+    ?`<div class="thumbs">${b.opts.filter(x=>!x.grid).map((x,i)=>`<figure>${svg(x.k+": "+x.what,scene(x.s,"T"+i,1))}<figcaption>${x.k}</figcaption></figure>`).join("")}</div>`
+    :svg(ood?o.alt:`${o.k}: ${o.what}`,ood?o.m():scene(o.s,"B"))+cap(o.inst||BASE,!!o.inst&&!o.same);
+  $("#oodKey").hidden=!ood;
   $("#what").textContent=o.what;
   $("#facts").innerHTML=o.facts.map(f=>`<li>${f}</li>`).join("");
   results();
@@ -165,7 +240,7 @@ sync();
 
 /* ---------- index ---------- */
 const IDX=[
- ["LIBERO-OOD","2505.03500","May 2025","New combinations of grasp and place locations seen separately in training","20 tasks","none"],
+ ["LIBERO-OOD","2505.03500","May 2025","New combinations of grasp and place locations seen separately in training","20 tasks (10 more in the code)","none"],
  ["LIBERO-PRO","2510.03827","Oct 2025","Object, position, wording, task and environment changes","40 tasks × 5 types","none"],
  ["LIBERO-Plus","2510.13626","Oct 2025","Camera, robot state, language, light, background, noise, layout","10,030 tasks","own:>20,000 trajectories (optional)"],
  ["LIBERO-Mem","2511.11478","Nov 2025","Object memory under partial observability","10 tasks","own:120 per task"],

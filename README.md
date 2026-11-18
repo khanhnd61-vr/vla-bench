@@ -19,7 +19,10 @@ python3 -m http.server 8000   # then open http://localhost:8000
 ## Sources
 
 - LIBERO task maps: coordinates from the LIBERO task (BDDL) files.
-- LIBERO-PRO and LIBERO-Plus scores: the papers' own tables (LIBERO-PRO v1 Tables 2–5, LIBERO-Plus v3 Table 2).
+- LIBERO-OOD task maps: the task files in [`pi0-text-latent`](https://github.com/QuanyiLi/pi0-text-latent) at `587a6cb`
+  (`third_party/modified_libero/libero/libero/bddl_files/libero_{goal,spatial,object}_ood/`).
+- LIBERO-PRO, LIBERO-Plus and LIBERO-OOD scores: the papers' own tables (LIBERO-PRO v1 Tables 2–5, LIBERO-Plus v3 Table 2,
+  LIBERO-OOD [2505.03500](https://arxiv.org/abs/2505.03500) Table 3).
 - CALVIN table maps and evaluation rules: [`calvin`](https://github.com/mees/calvin) at `fa03f01` and
   [`calvin_env`](https://github.com/mees/calvin_env) at `797142c` (scene files, table URDFs, `multistep_sequences.py`).
 - CALVIN redrawn-pose results: [2606.04233](https://arxiv.org/abs/2606.04233), Tables 1, 6 and 8. Not reproduced here.
