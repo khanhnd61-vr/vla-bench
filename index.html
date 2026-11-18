@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>VLA Bench: LIBERO, its variants and CALVIN</title>
-  <meta name="description" content="What LIBERO, its zero-shot variants and CALVIN vary between training and test, how each is scored, and which test conditions policies can fit.">
+  <title>VLA Bench: LIBERO, its variants, CALVIN and RoboTwin 2.0</title>
+  <meta name="description" content="What LIBERO, its zero-shot variants, CALVIN and RoboTwin 2.0 vary between training and test, how each is scored, and which test conditions policies can fit.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234B2E0F'/%3E%3Crect x='7' y='7' width='8' height='8' rx='2' fill='%230e8a6e'/%3E%3Crect x='17' y='7' width='8' height='8' rx='2' fill='%23c4651c'/%3E%3Crect x='7' y='17' width='8' height='8' rx='2' fill='%23F4C15D'/%3E%3Crect x='17.75' y='17.75' width='6.5' height='6.5' rx='1.5' fill='none' stroke='%23FAF7F2' stroke-width='1.5'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,6 +25,7 @@
         <a href="#libero">LIBERO</a>
         <a href="#variants">Variants</a>
         <a href="#calvin">CALVIN</a>
+        <a href="#robotwin">RoboTwin</a>
       </nav>
       <a class="nav__cta" href="https://khanhnd61-vr.github.io/">Home ↗</a>
     </div>
@@ -34,12 +35,12 @@
     <section class="hero">
       <div class="wrap hero__in">
         <p class="eyebrow">Robot manipulation benchmarks</p>
-        <h1>What <span class="accent-warm">LIBERO</span> and <span class="accent">CALVIN</span> vary, and what they hold fixed</h1>
+        <h1>What <span class="accent-warm">LIBERO</span>, <span class="accent">CALVIN</span> and <span class="accent">RoboTwin 2.0</span> vary, and what they hold fixed</h1>
         <dl class="stats">
           <div class="stat--main"><dt>LIBERO tasks scored</dt><dd>40</dd></div>
           <div><dt>LIBERO variants</dt><dd>16</dd></div>
           <div><dt>CALVIN tasks</dt><dd>34</dd></div>
-          <div><dt>CALVIN table spots</dt><dd>2</dd></div>
+          <div><dt>RoboTwin 2.0 tasks</dt><dd>50</dd></div>
         </dl>
       </div>
     </section>
@@ -48,11 +49,11 @@
       <div class="wrap">
         <header class="section__head">
           <p class="kicker">// side by side</p>
-          <h2 id="glance-title">The two benchmarks side by side</h2>
+          <h2 id="glance-title">The three benchmarks side by side</h2>
         </header>
         <div class="win">
-          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">libero vs calvin</span></div>
-          <div class="win__body scroll"><table class="glance"><thead><tr><th></th><th>LIBERO</th><th>CALVIN</th></tr></thead><tbody id="glanceRows"></tbody></table></div>
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">libero · calvin · robotwin 2.0</span></div>
+          <div class="win__body scroll"><table class="glance"><thead><tr><th></th><th>LIBERO</th><th>CALVIN</th><th>RoboTwin 2.0</th></tr></thead><tbody id="glanceRows"></tbody></table></div>
         </div>
       </div>
     </section>
@@ -328,6 +329,117 @@
               <tbody id="dbRows"></tbody>
             </table></div>
             <p class="src">“What Are We Actually Benchmarking in Robot Manipulation?” (<a href="https://arxiv.org/abs/2606.04233">2606.04233</a>), Tables 1 and 6. Drop interval: paired over the 1,000 chains. Drawing two fresh chain lists instead moved the score by at most 0.11 (Table 8), an order of magnitude less. The probe is the audit's DINOv2 ViT-B with an MLP head and a learned 34-way task embedding, best checkpoint (3.15 at the final one). The audit's pose range is not reproduced here; the map's dots are not its samples.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= RoboTwin 2.0 ================= -->
+    <section class="section section--alt" id="robotwin" aria-labelledby="rt-scene-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// robotwin · scene</p>
+          <h2 id="rt-scene-title">One table, with object poses drawn anew every episode</h2>
+          <p class="cite">Chen et al., 2025 · <a href="https://arxiv.org/abs/2506.18088">2506.18088</a> v2 · task code and settings read from <code>RoboTwin</code> ea8b211</p>
+        </header>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">place shoe, top view, to scale</span><div class="chips seg--bar" id="rtMode" role="group" aria-label="Test setting"><button class="chip" data-m="easy" aria-pressed="true">Easy</button><button class="chip" data-m="hard" aria-pressed="false">Hard</button></div></div>
+          <div class="win__body">
+            <div class="rt-fig">
+              <svg class="rt-map" id="rtMap" viewBox="0 0 520 372" role="img" aria-label="Top view of the 1.2 by 0.7 metre table. The shoe may start anywhere in two regions 11 to 25 centimetres either side of the centre; the mat sits between them. LIBERO's 2 centimetre start square is drawn at the same scale for comparison."></svg>
+              <div class="rt-side">
+                <div><span class="lbl">Instruction, example</span><p class="rt-inst" id="rtInst"></p><span class="rt-note" id="rtInstNote"></span></div>
+                <div><span class="lbl">Scene</span><ul id="rtSide"></ul></div>
+              </div>
+            </div>
+            <div class="two">
+              <div><b>Same in every episode</b><span>The Aloha-AgileX robot with two 6-DoF arms, the 1.2 × 0.7 m table, a head camera and two wrist cameras at 320 × 240.</span></div>
+              <div><b>Drawn anew every episode</b><span>Where each object starts and how it is turned. In this task also which of 10 shoe models appears, and which arm picks it up, set by the side the shoe starts on. The instruction is composed from templates and object descriptions.</span></div>
+              <div><b>How the data is made</b><span>Expert programs, written by a language model and corrected in a simulation feedback loop, drive the arms. An episode whose expert run fails is dropped. Over 100,000 trajectories are pre-collected.</span></div>
+            </div>
+            <p class="src">Start rule, mat and arm choice from <code>envs/place_shoe.py</code>. The dots are 50 draws from that rule, not recorded episodes; distractor positions in Hard are illustrative. The square is LIBERO's start region for one object, at the same scale.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="rt-dr-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// robotwin · easy and hard</p>
+          <h2 id="rt-dr-title">Train in clean scenes, test in clean and randomized ones</h2>
+        </header>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">what the randomized setting changes</span></div>
+          <div class="win__body">
+            <div class="scroll"><table>
+              <thead><tr><th>Factor</th><th>Clean: training data and Easy test</th><th>Randomized: Hard test</th></tr></thead>
+              <tbody>
+                <tr><td>Object poses</td><td colspan="2">Drawn every episode by each task's own rule. Test episodes use seeds from 100,000 on, which training data does not use.</td></tr>
+                <tr><td>Clutter</td><td>None</td><td>Up to 10 distractors anywhere on the table, from 731 objects in 147 categories. Objects that look like or mean the same as a task object are left out.</td></tr>
+                <tr><td>Background</td><td>Plain table and wall</td><td>Table and wall textures from the unseen part of an 11,000-texture library</td></tr>
+                <tr><td>Lighting</td><td>Fixed</td><td>Random colour, type, intensity and position; extreme lighting in 2% of episodes</td></tr>
+                <tr><td>Table height</td><td>Top at 0.74 m</td><td>Lowered by 0 to 3 cm</td></tr>
+                <tr><td>Instruction</td><td>Seen templates (5 to 50 per task) and seen object descriptions</td><td>Unseen templates (1 to 10 per task) and unseen object descriptions</td></tr>
+              </tbody>
+            </table></div>
+            <p class="src">In the randomized setting the table texture, the wall texture and the clutter are each left out in 2% of episodes. Settings from <code>env_cfg/task_config/demo_clean.yml</code>, <code>demo_randomized.yml</code> and <code>envs/_base_task.py</code>; template counts from <code>description/task_instruction</code>.</p>
+            <h3 class="subhead">Two training protocols</h3>
+            <div class="scroll"><table>
+              <thead><tr><th>Protocol</th><th>Training data</th><th>Policies</th><th>Test</th><th>Reported by</th></tr></thead>
+              <tbody>
+                <tr><td><b>The paper's</b></td><td>50 clean demonstrations per task</td><td>One per task; VLAs fine-tuned from their released weights</td><td>Easy and Hard</td><td>The RoboTwin 2.0 paper: RDT, π0, ACT, DP, DP3</td></tr>
+                <tr><td><b>50 + 500</b></td><td>50 clean and 500 randomized demonstrations per task, 27,500 in all</td><td>One for all 50 tasks</td><td>Clean and Randomized</td><td>Later papers; the audit's probe</td></tr>
+              </tbody>
+            </table></div>
+            <div class="two">
+              <div><b>Test size</b><span>100 rollouts per task and setting, on Aloha-AgileX. A seed the expert program cannot solve is skipped and replaced, so every test episode is solvable.</span></div>
+              <div><b>Time limit</b><span>Set per task, from 400 to 1,700 steps.</span></div>
+              <div><b>What Hard measures</b><span>Under the paper's protocol, a shift to scenes never seen in training. Under 50 + 500 the training data already varies clutter, textures (from the seen part of the library), lighting and table height, so the Randomized test is close to training.</span></div>
+            </div>
+            <p class="src">Protocols from the paper (§4.5, Appendix J) and the audit (<a href="https://arxiv.org/abs/2606.04233">2606.04233</a>, Appendix A.1); seed rule and step limits from <code>scripts/eval_policy_xpolicylab.py</code> and <code>_eval_step_limit.yml</code>. Not every paper states its protocol: X-VLA reports Easy 70.0 and Hard 39.0 without defining them.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt" aria-labelledby="rt-score-title">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="kicker">// robotwin · scores</p>
+          <h2 id="rt-score-title">What randomization costs, and how far a probe gets</h2>
+        </header>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="win__name">50 tasks, aloha-agilex</span></div>
+          <div class="win__body">
+            <h3 class="chart-title">Average success rate, %, under the paper's protocol</h3>
+            <div class="legend">
+              <span><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--blue)"/></svg>Easy (clean)</span>
+              <span><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--orange)"/></svg>Hard (randomized)</span>
+            </div>
+            <div class="scroll"><svg class="db" id="rtDb" viewBox="0 0 540 224" role="img" aria-label="Average success falls from Easy to Hard: DP3 55.2 to 5.0, pi0 46.4 to 16.3, RDT 34.5 to 13.7, ACT 29.7 to 1.7, DP 28.0 to 0.6"></svg></div>
+            <div class="two">
+              <div><b>Pretrained models hold up best</b><span>π0 loses 30.1 points and RDT 20.8. ACT, DP and DP3, trained only on the 50 demonstrations, end between 0.6 and 5.0.</span></div>
+              <div><b>DP3 leads on Easy</b><span>55.2, from point clouds. The paper notes that simulation gives it perfect point clouds and a clean background to segment.</span></div>
+            </div>
+            <h3 class="subhead">Under 50 + 500, with the audit's probe</h3>
+            <div class="scroll"><table>
+              <thead><tr><th>Policy</th><th>Clean</th><th>Randomized</th><th>Note</th></tr></thead>
+              <tbody>
+                <tr><td>Probe: DINOv2 ViT-B and an MLP, no language, 0.09B</td><td class="num">60.4</td><td class="num">59.4</td><td>One policy for all tasks, told the task by a learned embedding</td></tr>
+                <tr><td>X-VLA, 0.9B</td><td class="num">72.8</td><td class="num">72.8</td><td>Run reported by ABot-M0, cited by the audit</td></tr>
+                <tr><td>MotuBrain</td><td class="num">95.8</td><td class="num">96.1</td><td>Best published result in the audit</td></tr>
+              </tbody>
+            </table></div>
+            <div class="two">
+              <div><b>No shortcut found</b><span>The probe trails the best result by 35 points. On LIBERO the same kind of probe is within one point of the best on three of four suites.</span></div>
+              <div><b>Gains are easier to prove</b><span>73.7% of new-best claims are provably significant from the published averages, against 19.8% on LIBERO. The audit notes that fewer reported results, set further apart, are part of the reason.</span></div>
+            </div>
+            <h3 class="subhead">Per task</h3>
+            <div class="rt-ctl"><div class="chips" id="rtModel" role="group" aria-label="Policy"></div><div class="chips" id="rtSort" role="group" aria-label="Order"><button class="chip" data-s="az" aria-pressed="true">A–Z</button><button class="chip" data-s="first" aria-pressed="false">By score</button><button class="chip" data-s="drop" aria-pressed="false">By drop</button></div></div>
+            <div class="legend" id="rtKey"></div>
+            <div class="rt-tiles" id="rtTasks"></div>
+            <p class="src">RoboTwin 2.0 paper, Table 10 (Appendix K): single-task policies, 100 rollouts per task and setting. Probe: audit Table 3; X-VLA and MotuBrain: audit Table 1. Not reproduced here.</p>
           </div>
         </div>
       </div>
